@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dirt Temple — Nepal's Digital Home of Motorsports</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Manrope:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+  theme: { extend: {
+    colors: { ink:'#0b0b0c', ink2:'#141416', ink3:'#1b1b1f', dyellow:'#FFD100', violet:'#8B2FE0', vsoft:'#B26BFF' },
+    fontFamily: { sora:['Sora','sans-serif'], manrope:['Manrope','sans-serif'], mono:['Inter','sans-serif'] },
+  }}
+}
+</script>
+<script src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.1/dist/cdn.min.js" defer></script>
+<style>
+  body{font-family:'Manrope',sans-serif;}
+  h1,h2,h3,h4{font-family:'Sora',sans-serif;}
+  .font-mono{font-family:'Inter',sans-serif;}
+  ::-webkit-scrollbar{width:8px}
+  ::-webkit-scrollbar-track{background:#0b0b0c}
+  ::-webkit-scrollbar-thumb{background:linear-gradient(#FFD100,#8B2FE0);border-radius:8px}
+  ::selection{background:#FFD100;color:#111}
+  .notch{clip-path:polygon(0 0,calc(100% - 18px) 0,100% 18px,100% 100%,18px 100%,0 calc(100% - 18px));}
+  .fade-line span{display:inline-block;opacity:0;transform:translateY(20px);transition:opacity .8s cubic-bezier(.16,1,.3,1),transform .8s cubic-bezier(.16,1,.3,1);}
+  .fade-line.on span{opacity:1;transform:translateY(0);}
+  @keyframes marquee{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+  .animate-marquee{animation:marquee 26s linear infinite;width:max-content;}
+  .marquee-wrap:hover .animate-marquee{animation-play-state:paused;}
+  @keyframes ripple{to{transform:scale(3.2);opacity:0}}
+  .animate-ripple{animation:ripple .65s ease-out;}
+  .mmenu{clip-path:circle(0% at 92% 4%);transition:clip-path .6s cubic-bezier(.16,1,.3,1);}
+  .mmenu.open{clip-path:circle(150% at 92% 4%);}
+  [x-cloak]{display:none!important;}
+</style>
+</head>
+<body x-data="dirtTemple()" x-init="init()" class="bg-ink text-white antialiased overflow-x-hidden">
+
+<!-- MOUSE GLOW -->
+<div class="fixed inset-0 pointer-events-none z-0 opacity-60" style="background:radial-gradient(600px circle at var(--x,50%) var(--y,50%),rgba(139,47,224,.10),transparent 70%)" @mousemove.window="$el.style.setProperty('--x',$event.clientX+'px');$el.style.setProperty('--y',$event.clientY+'px')"></div>
+
+<!-- NAV -->
+<header :class="scrolled ? 'py-3 bg-ink/75 backdrop-blur-xl border-white/10' : 'py-5 border-transparent'" class="fixed top-0 inset-x-0 z-50 flex items-center justify-between px-[6vw] border-b transition-all duration-300">
+  <a href="#" class="flex items-center gap-2">
+    <div class="bg-white/95 rounded-xl px-3 py-1.5"><span class="font-sora font-extrabold text-sm tracking-widest text-ink">DIRT <span class="text-violet">TEMPLE</span></span></div>
+  </a>
+  <nav class="hidden md:flex gap-9 font-mono text-[13px] font-semibold text-gray-400">
+    <a href="#academy" class="hover:text-white transition">Academy</a>
+    <a href="#events" class="hover:text-white transition">Events</a>
+    <a href="#riders" class="hover:text-white transition">Riders</a>
+    <a href="#sponsors" class="hover:text-white transition">Sponsors</a>
+    <a href="#media" class="hover:text-white transition">Media</a>
+    <a href="#faq" class="hover:text-white transition">FAQ</a>
+  </nav>
+  <div class="flex items-center gap-3">
+    <button @click.stop="ripple($event);joinOpen=true" class="relative overflow-hidden bg-dyellow text-ink font-mono font-bold text-[13px] px-6 py-3 rounded-full hover:-translate-y-0.5 hover:shadow-lg hover:shadow-dyellow/30 transition">Join the Academy</button>
+    <button @click="mobileOpen=!mobileOpen" class="md:hidden w-10 h-10 flex flex-col justify-center gap-1.5 items-center">
+      <span class="w-5 h-0.5 bg-white transition" :class="mobileOpen && 'translate-y-2 rotate-45'"></span>
+      <span class="w-5 h-0.5 bg-white transition" :class="mobileOpen && 'opacity-0'"></span>
+      <span class="w-5 h-0.5 bg-white transition" :class="mobileOpen && '-translate-y-2 -rotate-45'"></span>
+    </button>
+  </div>
+</header>
+
+<!-- MOBILE MENU -->
+<div class="mmenu fixed inset-0 z-40 bg-ink/98 backdrop-blur flex flex-col items-center justify-center gap-8" :class="mobileOpen && 'open'">
+  <a @click="mobileOpen=false" href="#academy" class="font-sora text-3xl font-bold">Academy</a>
+  <a @click="mobileOpen=false" href="#events" class="font-sora text-3xl font-bold">Events</a>
+  <a @click="mobileOpen=false" href="#riders" class="font-sora text-3xl font-bold">Riders</a>
+  <a @click="mobileOpen=false" href="#sponsors" class="font-sora text-3xl font-bold">Sponsors</a>
+  <a @click="mobileOpen=false" href="#media" class="font-sora text-3xl font-bold">Media</a>
+</div>
+
+<!-- HERO -->
+<section class="relative min-h-screen flex flex-col items-center justify-center text-center px-[6vw] pt-32 pb-14 overflow-hidden">
+  <div class="absolute inset-0 z-0">
+    <video autoplay muted loop playsinline poster="https://www.dirttemple.com/assets/img/hero-jump.jpg" class="w-full h-full object-cover opacity-50">
+      <source src="https://www.dirttemple.com/images/videos/hero-races.mp4" type="video/mp4">
+    </video>
+    <div class="absolute inset-0" style="background:radial-gradient(ellipse 60% 50% at 50% 15%,rgba(139,47,224,.30),transparent 60%),linear-gradient(180deg,rgba(11,11,12,.35),rgba(11,11,12,.55) 55%,rgba(11,11,12,.95))"></div>
+  </div>
+
+  <div class="relative z-10 max-w-4xl flex flex-col items-center">
+    <div class="flex gap-3 mb-8">
+      <template x-for="i in 5" :key="i">
+        <div class="w-4 h-4 rounded-full border border-white/15 transition-all duration-200" :class="litIndex >= i-1 ? 'bg-dyellow shadow-[0_0_22px_4px_rgba(255,209,0,.7)]' : 'bg-white/10'"></div>
+      </template>
+    </div>
+    <h1 class="fade-line" :class="heroReady && 'on'">
+      <span class="block font-sora font-extrabold uppercase text-[clamp(34px,7vw,80px)] leading-[1.05]"><span style="transition-delay:0ms">Nepal's Digital</span></span>
+      <span class="block font-sora font-extrabold uppercase text-[clamp(34px,7vw,80px)] leading-[1.05]"><span style="transition-delay:120ms">Home of <em class="not-italic text-dyellow italic">Motorsports</em></span></span>
+    </h1>
+    <p class="mt-6 text-gray-300 max-w-xl text-[clamp(15px,1.6vw,19px)] leading-relaxed transition-opacity duration-700" :class="heroReady ? 'opacity-100' : 'opacity-0'">One ecosystem for riders, tracks, events and teams — built in Kathmandu to take Nepali motorsports to the world stage.</p>
+    <div class="mt-9 flex gap-4 flex-wrap justify-center transition-opacity duration-700 delay-150" :class="heroReady ? 'opacity-100' : 'opacity-0'">
+      <button @click.stop="ripple($event);joinOpen=true" class="relative overflow-hidden bg-dyellow text-ink font-mono font-bold text-[13px] px-7 py-3.5 rounded-full hover:-translate-y-1 hover:shadow-lg hover:shadow-dyellow/40 transition">Join the Academy</button>
+      <a @click="ripple($event)" href="#events" class="relative overflow-hidden bg-white/5 border border-white/15 font-mono font-bold text-[13px] px-7 py-3.5 rounded-full hover:bg-white/10 hover:-translate-y-1 transition">Explore Events</a>
+    </div>
+  </div>
+  <div class="absolute bottom-8 flex flex-col items-center gap-2 font-mono text-[11px] tracking-widest text-gray-500 uppercase">Scroll<span class="w-px h-8 bg-gradient-to-b from-dyellow to-transparent animate-pulse"></span></div>
+</section>
+
+<!-- STATS -->
+<section class="border-y border-white/10 bg-ink2">
+  <div class="grid grid-cols-2 md:grid-cols-5">
+    <template x-for="(s,i) in stats" :key="i">
+      <div class="px-6 py-9 text-center border-r border-white/10 last:border-r-0">
+        <div class="font-sora font-extrabold text-[clamp(26px,3.2vw,42px)] tabular-nums"><span x-text="s.display.toLocaleString()"></span><span class="text-dyellow" x-text="s.suffix"></span></div>
+        <div class="mt-2 font-mono text-[11px] tracking-widest uppercase text-gray-400" x-text="s.label"></div>
+      </div>
+    </template>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section id="academy" class="px-[6vw] py-32">
+  <div class="max-w-xl mb-14">
+    <span class="font-mono text-xs tracking-[.2em] uppercase text-dyellow font-semibold flex items-center gap-2.5 before:w-6 before:h-px before:bg-dyellow">The Ecosystem</span>
+    <h2 class="mt-4 font-sora font-bold text-[clamp(28px,4vw,48px)]">Everything Nepali motorsports needed in one place</h2>
+    <p class="mt-4 text-gray-400 text-[16px] leading-relaxed">From a rider's first lesson to a brand's sponsorship deal, Dirt Temple runs the full stack of Nepal's motorsports scene.</p>
+  </div>
+  <div class="grid md:grid-cols-3 gap-5">
+    <template x-for="(f,i) in features" :key="i">
+      <div class="group relative rounded-3xl overflow-hidden border border-white/10 bg-white/[.03] hover:-translate-y-2 hover:border-white/25 transition-all duration-500">
+        <div class="h-40 overflow-hidden"><img :src="f.img" :alt="f.title" loading="lazy" class="w-full h-full object-cover opacity-70 group-hover:opacity-95 group-hover:scale-105 transition-all duration-500"></div>
+        <div class="p-7">
+          <span class="font-mono text-[11px] text-gray-500" x-text="'0'+(i+1)+' / 06'"></span>
+          <h3 class="mt-3 text-xl font-bold" x-text="f.title"></h3>
+          <p class="mt-2 text-gray-400 text-sm leading-relaxed" x-text="f.desc"></p>
+          <span class="mt-4 inline-flex items-center gap-1.5 font-mono text-xs font-semibold text-dyellow">Learn more <span class="group-hover:translate-x-1 transition-transform">→</span></span>
+        </div>
+      </div>
+    </template>
+  </div>
+</section>
+
+<!-- EVENTS -->
+<section id="events" class="px-[6vw] py-32 border-t border-white/10">
+  <div class="max-w-xl mb-14">
+    <span class="font-mono text-xs tracking-[.2em] uppercase text-dyellow font-semibold flex items-center gap-2.5 before:w-6 before:h-px before:bg-dyellow">Race Calendar</span>
+    <h2 class="mt-4 font-sora font-bold text-[clamp(28px,4vw,48px)]">Every round, one calendar</h2>
+    <p class="mt-4 text-gray-400 text-[16px] leading-relaxed">National championships, regional motos and open track days — track the season from gate drop to podium.</p>
+  </div>
+  <div class="grid lg:grid-cols-[1fr_1.15fr] gap-14 items-start">
+    <div class="lg:sticky lg:top-28 rounded-3xl border border-white/10 p-8" style="background:linear-gradient(160deg,rgba(255,209,0,.07),rgba(139,47,224,.08))">
+      <span class="font-mono text-xs tracking-[.2em] uppercase text-dyellow font-semibold">Next Race</span>
+      <h3 class="mt-2 text-xl font-bold">Dirt Temple National Championship — Rd 3</h3>
+      <p class="mt-1 font-mono text-[13px] text-gray-400">Pokhara Motocross Park · Sept 12, 2026</p>
+      <div class="grid grid-cols-4 gap-2 mt-6">
+        <template x-for="u in ['d','h','m','s']" :key="u">
+          <div class="bg-black/35 border border-white/10 rounded-lg py-4 text-center">
+            <div class="font-sora font-extrabold text-2xl text-dyellow tabular-nums" x-text="cd[u]"></div>
+            <div class="font-mono text-[9px] tracking-widest uppercase text-gray-400 mt-1" x-text="u==='d'?'Days':u==='h'?'Hrs':u==='m'?'Min':'Sec'"></div>
+          </div>
+        </template>
+      </div>
+      <button @click="ripple($event)" class="relative overflow-hidden w-full mt-6 bg-violet text-white font-mono font-bold text-[13px] px-6 py-3.5 rounded-full hover:-translate-y-0.5 hover:shadow-lg hover:shadow-violet/40 transition">Get Entry Details</button>
+    </div>
+    <div class="relative pl-9 border-l border-white/10 space-y-9">
+      <template x-for="(e,i) in events" :key="i">
+        <div class="relative">
+          <div class="absolute -left-[41px] top-1 w-3.5 h-3.5 rounded-full bg-ink" :class="e.past ? 'border-2 border-gray-600' : 'border-2 border-dyellow'"></div>
+          <div class="flex gap-4 items-start">
+            <img :src="e.img" :alt="e.title" loading="lazy" class="w-20 h-20 rounded-xl object-cover border border-white/10 flex-shrink-0">
+            <div>
+              <span class="font-mono text-[11px] tracking-widest uppercase" :class="e.past ? 'text-gray-500' : 'text-vsoft'" x-text="e.tag"></span>
+              <h4 class="text-lg font-bold mt-1" x-text="e.title"></h4>
+              <p class="text-gray-400 text-sm mt-0.5" x-text="e.desc"></p>
+              <span class="block font-mono text-xs text-gray-500 mt-1" x-text="e.date"></span>
+            </div>
+          </div>
+        </div>
+      </template>
+    </div>
+  </div>
+</section>
+
+<!-- RIDERS -->
+<section id="riders" class="px-[6vw] py-32 border-t border-white/10">
+  <div class="flex justify-between items-end gap-6 flex-wrap mb-10">
+    <div>
+      <span class="font-mono text-xs tracking-[.2em] uppercase text-dyellow font-semibold flex items-center gap-2.5 before:w-6 before:h-px before:bg-dyellow">Professional Riders</span>
+      <h2 class="mt-4 font-sora font-bold text-[clamp(28px,4vw,48px)]">Carrying Nepal's colours</h2>
+    </div>
+    <div class="flex gap-2">
+      <button @click="$refs.riderTrack.scrollBy({left:-300,behavior:'smooth'})" class="w-11 h-11 rounded-full border border-white/10 hover:border-dyellow hover:bg-white/5 transition">←</button>
+      <button @click="$refs.riderTrack.scrollBy({left:300,behavior:'smooth'})" class="w-11 h-11 rounded-full border border-white/10 hover:border-dyellow hover:bg-white/5 transition">→</button>
+    </div>
+  </div>
+  <div x-ref="riderTrack" class="flex gap-5 overflow-x-auto pb-6" style="scroll-snap-type:x mandatory;scrollbar-width:none;">
+    <template x-for="(r,i) in riders" :key="i">
+      <div class="group relative flex-none w-72 aspect-[3/4] rounded-3xl overflow-hidden border border-white/10 hover:-translate-y-2 transition-all duration-500" style="scroll-snap-align:start">
+        <img :src="r.img" :alt="r.name" loading="lazy" class="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500">
+        <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/10 to-transparent"></div>
+        <div class="absolute left-0 right-0 bottom-0 p-5">
+          <span class="font-mono text-[11px] tracking-widest uppercase text-dyellow" x-text="r.disc"></span>
+          <h4 class="text-xl font-bold mt-1" x-text="r.name"></h4>
+          <div class="grid grid-rows-[0fr] group-hover:grid-rows-[1fr] transition-all duration-500 overflow-hidden">
+            <p class="min-h-0 text-sm text-gray-300 mt-1" x-text="r.ach"></p>
+          </div>
+        </div>
+      </div>
+    </template>
+  </div>
+</section>
+
+<!-- SPONSORS -->
+<section id="sponsors" class="px-[6vw] py-20 border-t border-white/10">
+  <div class="max-w-xl mb-10">
+    <span class="font-mono text-xs tracking-[.2em] uppercase text-dyellow font-semibold flex items-center gap-2.5 before:w-6 before:h-px before:bg-dyellow">Backed By</span>
+    <h2 class="mt-4 font-sora font-bold text-[clamp(28px,4vw,48px)]">Sponsors &amp; partners</h2>
+  </div>
+  <div class="marquee-wrap overflow-hidden" style="-webkit-mask:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent)">
+    <div class="flex gap-16 animate-marquee">
+      <template x-for="(s,i) in [...sponsors,...sponsors]" :key="i">
+        <span class="font-sora font-extrabold text-2xl text-gray-600 hover:text-white transition flex items-center gap-2.5 whitespace-nowrap"><span class="w-1.5 h-1.5 rounded-full bg-dyellow"></span><span x-text="s"></span></span>
+      </template>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section class="px-[6vw] py-32 border-t border-white/10">
+  <div class="max-w-xl mx-auto text-center mb-14">
+    <span class="font-mono text-xs tracking-[.2em] uppercase text-dyellow font-semibold justify-center flex items-center gap-2.5 before:w-6 before:h-px before:bg-dyellow">In Their Words</span>
+    <h2 class="mt-4 font-sora font-bold text-[clamp(28px,4vw,48px)]">Voices from the paddock</h2>
+  </div>
+  <div class="max-w-2xl mx-auto relative overflow-hidden">
+    <div class="flex transition-transform duration-700 ease-[cubic-bezier(.16,1,.3,1)]" :style="`transform:translateX(-${testiIndex*100}%)`">
+      <template x-for="(t,i) in testimonials" :key="i">
+        <div class="flex-none w-full text-center rounded-3xl border border-white/10 backdrop-blur-md p-12" style="background:linear-gradient(160deg,rgba(255,255,255,.06),rgba(255,255,255,.015))">
+          <div class="font-sora text-5xl text-dyellow leading-none">"</div>
+          <p class="font-sora font-medium text-[clamp(17px,2vw,22px)] leading-snug my-4" x-text="t.quote"></p>
+          <b class="block text-sm" x-text="t.name"></b>
+          <span class="font-mono text-xs text-gray-400" x-text="t.role"></span>
+        </div>
+      </template>
+    </div>
+    <div class="flex justify-center gap-2 mt-7">
+      <template x-for="(t,i) in testimonials" :key="i">
+        <button @click="testiIndex=i" class="h-2 rounded-full transition-all" :class="testiIndex===i ? 'w-6 bg-dyellow' : 'w-2 bg-white/15'"></button>
+      </template>
+    </div>
+  </div>
+</section>
+
+<!-- GALLERY -->
+<section id="media" class="px-[6vw] py-32 border-t border-white/10">
+  <div class="max-w-xl mb-8">
+    <span class="font-mono text-xs tracking-[.2em] uppercase text-dyellow font-semibold flex items-center gap-2.5 before:w-6 before:h-px before:bg-dyellow">Media</span>
+    <h2 class="mt-4 font-sora font-bold text-[clamp(28px,4vw,48px)]">Race-day films &amp; photo drops</h2>
+    <p class="mt-4 text-gray-400 text-[16px] leading-relaxed">Behind-the-scenes from every round, shot trackside by the Dirt Temple media crew.</p>
+  </div>
+  <div class="flex gap-2 flex-wrap mb-8">
+    <template x-for="c in ['all','race','academy','behind']" :key="c">
+      <button @click="galleryFilter=c" class="px-4 py-2 rounded-full border font-mono text-xs transition" :class="galleryFilter===c ? 'bg-dyellow text-ink border-dyellow font-bold' : 'border-white/10 text-gray-400'" x-text="c[0].toUpperCase()+c.slice(1)"></button>
+    </template>
+  </div>
+  <div class="columns-2 md:columns-4 gap-3.5" style="column-fill:balance">
+    <template x-for="(g,i) in gallery.filter(g=>galleryFilter==='all'||g.cat===galleryFilter)" :key="i">
+      <div class="group relative rounded-2xl overflow-hidden border border-white/10 mb-3.5 break-inside-avoid">
+        <img :src="g.img" :alt="g.cap" loading="lazy" class="w-full object-cover group-hover:brightness-110 transition" :style="`height:${g.h}px`">
+        <div class="absolute inset-x-0 bottom-0 p-3 bg-gradient-to-t from-black/85 to-transparent font-mono text-[11px] opacity-0 group-hover:opacity-100 transition" x-text="g.cap"></div>
+      </div>
+    </template>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section id="faq" class="px-[6vw] py-32 border-t border-white/10">
+  <div class="max-w-xl mb-10">
+    <span class="font-mono text-xs tracking-[.2em] uppercase text-dyellow font-semibold flex items-center gap-2.5 before:w-6 before:h-px before:bg-dyellow">Good to Know</span>
+    <h2 class="mt-4 font-sora font-bold text-[clamp(28px,4vw,48px)]">Frequently asked</h2>
+  </div>
+  <div class="max-w-3xl divide-y divide-white/10">
+    <template x-for="(f,i) in faqs" :key="i">
+      <div>
+        <button @click="openFaq = openFaq===i ? null : i" class="w-full flex justify-between items-center py-6 text-left font-sora font-semibold text-base md:text-lg">
+          <span x-text="f.q"></span>
+          <span class="relative w-5 h-5 flex-shrink-0 ml-5">
+            <span class="absolute inset-y-1/2 left-0 w-full h-0.5 bg-dyellow"></span>
+            <span class="absolute inset-x-1/2 top-0 h-full w-0.5 bg-dyellow transition-transform" :class="openFaq===i && 'scale-y-0'"></span>
+          </span>
+        </button>
+        <div class="overflow-hidden transition-all duration-500" :style="openFaq===i ? 'max-height:200px' : 'max-height:0'">
+          <p class="pb-6 text-gray-400 text-sm leading-relaxed max-w-xl" x-text="f.a"></p>
+        </div>
+      </div>
+    </template>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="px-[6vw] py-24">
+  <div class="relative overflow-hidden rounded-[32px] border border-white/10 text-center py-20 px-6" style="background:linear-gradient(135deg,#1a1a1c,#0e0e10)">
+    <div class="absolute inset-0" style="background:radial-gradient(circle at 30% 20%,rgba(255,209,0,.16),transparent 55%),radial-gradient(circle at 75% 80%,rgba(139,47,224,.22),transparent 55%)"></div>
+    <div class="relative">
+      <span class="font-mono text-xs tracking-[.2em] uppercase text-dyellow font-semibold">Get Started</span>
+      <h2 class="mt-4 font-sora font-bold text-[clamp(28px,4.5vw,50px)]">Ready to put a knee down?</h2>
+      <p class="text-gray-400 max-w-md mx-auto mt-4 mb-8">Applications for the next Academy intake open soon. Reserve your spot before the gate drops.</p>
+      <div class="flex gap-4 justify-center flex-wrap">
+        <button @click.stop="ripple($event);joinOpen=true" class="relative overflow-hidden bg-dyellow text-ink font-mono font-bold text-[13px] px-7 py-3.5 rounded-full hover:-translate-y-1 hover:shadow-lg hover:shadow-dyellow/40 transition">Join the Academy</button>
+        <a @click="ripple($event)" href="#events" class="relative overflow-hidden bg-white/5 border border-white/15 font-mono font-bold text-[13px] px-7 py-3.5 rounded-full hover:bg-white/10 hover:-translate-y-1 transition">See Race Calendar</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="px-[6vw] pt-24 pb-8 border-t border-white/10 bg-ink2">
+  <div class="grid md:grid-cols-4 gap-11 pb-16">
+    <div>
+      <div class="bg-white/95 rounded-xl px-3 py-1.5 inline-block"><span class="font-sora font-extrabold text-sm tracking-widest text-ink">DIRT <span class="text-violet">TEMPLE</span></span></div>
+      <p class="text-gray-400 text-sm leading-relaxed mt-4 mb-5 max-w-xs">Nepal's first integrated motorsports ecosystem — academy, tracks, events and teams, under one roof.</p>
+      <div class="flex gap-2.5">
+        <template x-for="i in 4" :key="i"><a href="#" class="w-9 h-9 rounded-full border border-white/10 flex items-center justify-center hover:bg-dyellow hover:text-ink hover:-translate-y-0.5 transition"><span class="w-2 h-2 rounded-full bg-current"></span></a></template>
+      </div>
+    </div>
+    <div>
+      <h5 class="font-mono text-xs tracking-widest uppercase text-gray-400 mb-4">Explore</h5>
+      <a href="#academy" class="block text-gray-400 text-sm mb-3 hover:text-dyellow hover:translate-x-1 transition">Academy</a>
+      <a href="#events" class="block text-gray-400 text-sm mb-3 hover:text-dyellow hover:translate-x-1 transition">Track Booking</a>
+      <a href="#events" class="block text-gray-400 text-sm mb-3 hover:text-dyellow hover:translate-x-1 transition">Events</a>
+      <a href="#riders" class="block text-gray-400 text-sm mb-3 hover:text-dyellow hover:translate-x-1 transition">Riders</a>
+    </div>
+    <div>
+      <h5 class="font-mono text-xs tracking-widest uppercase text-gray-400 mb-4">Company</h5>
+      <a href="#" class="block text-gray-400 text-sm mb-3 hover:text-dyellow hover:translate-x-1 transition">About</a>
+      <a href="#sponsors" class="block text-gray-400 text-sm mb-3 hover:text-dyellow hover:translate-x-1 transition">Sponsorship</a>
+      <a href="#media" class="block text-gray-400 text-sm mb-3 hover:text-dyellow hover:translate-x-1 transition">Media</a>
+      <a href="#" class="block text-gray-400 text-sm mb-3 hover:text-dyellow hover:translate-x-1 transition">Contact</a>
+    </div>
+    <div>
+      <h5 class="font-mono text-xs tracking-widest uppercase text-gray-400 mb-4">Newsletter</h5>
+      <p class="text-gray-400 text-sm leading-relaxed mb-3">Race dates, entry openings and rider news before anyone else.</p>
+      <form @submit.prevent="submitNewsletter()" class="flex gap-2 flex-wrap">
+        <input type="email" required placeholder="you@email.com" class="flex-1 min-w-[150px] bg-white/5 border border-white/10 rounded-full px-4 py-2.5 text-sm focus:border-dyellow outline-none transition">
+        <button class="bg-dyellow text-ink font-mono font-bold text-xs px-5 py-2.5 rounded-full">Sign Up</button>
+      </form>
+      <div class="rounded-xl overflow-hidden border border-white/10 h-36 mt-4" style="filter:grayscale(.4) invert(.92) contrast(.9)">
+        <iframe loading="lazy" class="w-full h-full border-0" src="https://www.openstreetmap.org/export/embed.html?bbox=85.28%2C27.66%2C85.36%2C27.72&layer=mapnik&marker=27.6939%2C85.32" title="Dirt Temple HQ"></iframe>
+      </div>
+    </div>
+  </div>
+  <div class="flex justify-between items-center flex-wrap gap-3 pt-6 border-t border-white/10 font-mono text-[11px] text-gray-500">
+    <p>© 2026 DIRT TEMPLE — KATHMANDU, NEPAL</p>
+    <div class="flex gap-5"><a href="#" class="hover:text-white">Privacy</a><a href="#" class="hover:text-white">Terms</a><a href="#" class="hover:text-white">Press Kit</a></div>
+  </div>
+</footer>
+
+<!-- JOIN MODAL -->
+<div x-cloak x-show="joinOpen" x-transition.opacity class="fixed inset-0 z-[80] bg-black/70 backdrop-blur-sm flex items-center justify-center p-5" @click.self="joinOpen=false">
+  <div x-show="joinOpen" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-6 scale-95" x-transition:enter-end="opacity-100 translate-y-0 scale-100" class="w-full max-w-md bg-ink3 border border-white/10 rounded-3xl p-10 relative">
+    <button @click="joinOpen=false" class="absolute top-5 right-5 w-8 h-8 rounded-full border border-white/10 flex items-center justify-center hover:bg-white/10">✕</button>
+    <span class="font-mono text-xs tracking-[.2em] uppercase text-dyellow font-semibold">Academy</span>
+    <h3 class="text-2xl font-bold mt-2">Join the Academy</h3>
+    <p class="text-gray-400 text-sm mt-1 mb-6">Tell us where you're starting from — we'll place you in the right program.</p>
+    <form @submit.prevent="submitJoin()" class="space-y-4">
+      <div><label class="block font-mono text-[11px] uppercase text-gray-400 mb-2">Full name</label><input required placeholder="Bishal Thapa" class="w-full bg-white/5 border border-white/10 rounded-lg px-3.5 py-3 text-sm focus:border-dyellow outline-none transition"></div>
+      <div><label class="block font-mono text-[11px] uppercase text-gray-400 mb-2">Email</label><input type="email" required placeholder="you@email.com" class="w-full bg-white/5 border border-white/10 rounded-lg px-3.5 py-3 text-sm focus:border-dyellow outline-none transition"></div>
+      <div><label class="block font-mono text-[11px] uppercase text-gray-400 mb-2">Discipline</label>
+        <select required class="w-full bg-white/5 border border-white/10 rounded-lg px-3.5 py-3 text-sm focus:border-dyellow outline-none transition">
+          <option value="">Select one</option><option>Motocross</option><option>Enduro</option><option>Karting</option><option>Rally</option>
+        </select>
+      </div>
+      <button class="w-full bg-dyellow text-ink font-mono font-bold text-[13px] px-6 py-3.5 rounded-full mt-1">Submit Application</button>
+    </form>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div x-cloak x-show="toast.show" x-transition class="fixed bottom-6 left-1/2 -translate-x-1/2 z-[90] bg-white text-ink px-6 py-3.5 rounded-full font-mono text-[13px] font-bold shadow-2xl flex items-center gap-2.5">
+  <span class="w-2 h-2 rounded-full bg-dyellow"></span><span x-text="toast.msg"></span>
+</div>
+
+<script>
+const IMG = 'https://www.dirttemple.com/assets/img/';
+function dirtTemple(){
+  return {
+    mobileOpen:false, joinOpen:false, scrolled:false, heroReady:false, litIndex:-1,
+    toast:{show:false,msg:''}, testiIndex:0, galleryFilter:'all', openFaq:null,
+    cd:{d:'00',h:'00',m:'00',s:'00'}, raceDate:new Date('2026-09-12T08:00:00'),
+
+    stats:[
+      {label:'Riders Trained',value:1240,suffix:'+',display:0},
+      {label:'Events Hosted',value:86,suffix:'',display:0},
+      {label:'Tracks',value:12,suffix:'',display:0},
+      {label:'Sponsors',value:34,suffix:'',display:0},
+      {label:'Race Winners',value:57,suffix:'',display:0},
+    ],
+    features:[
+      {title:'Academy',desc:'Structured rider development from first throttle to podium — coached programs across motocross, enduro and karting.',img:IMG+'hero-jump.jpg'},
+      {title:'Track Booking',desc:'Reserve verified tracks across Nepal in seconds. Live availability, instant confirmation, no phone calls.',img:IMG+'track-dhulikhel.jpg'},
+      {title:'Events',desc:'National championships, regional motos and open track days — all scheduled on one live calendar.',img:IMG+'event-templerun.jpg'},
+      {title:'Professional Riders',desc:"Meet the riders carrying Nepal's colours onto the international circuit, and follow their season.",img:IMG+'race-pack.jpg'},
+      {title:'Sponsorship',desc:'Where brands and riders align — sponsorship packages built around real race data and reach.',img:IMG+'sponsor-hero.jpg'},
+      {title:'Media',desc:'Race-day films, photo drops and behind-the-scenes coverage from every round of the season.',img:IMG+'gallery-2.jpg'},
+    ],
+    events:[
+      {tag:'Motocross · Round 3',title:'Dirt Temple National Championship',desc:'Pokhara Motocross Park',date:'Sept 12–13, 2026',past:false,img:IMG+'event-mxcup.jpg'},
+      {tag:'Enduro · Round 4',title:'Kathmandu Enduro Series',desc:'Shivapuri Forest Trail',date:'Oct 4, 2026',past:false,img:IMG+'event-enduro.jpg'},
+      {tag:'Rally Sprint',title:'Himalayan Rally Sprint',desc:'Mustang Valley Circuit',date:'Nov 8, 2026',past:false,img:IMG+'event-templerun.jpg'},
+      {tag:'Combine',title:'Off-Season Rider Combine',desc:'Dirt Temple HQ, Kathmandu',date:'Dec 6, 2026',past:false,img:IMG+'track-pokhara.jpg'},
+      {tag:'Recap',title:'Round 2 wrapped in Chitwan',desc:'Holeshot to the win in a last-lap battle',date:'July 19, 2026',past:true,img:IMG+'race-podium.jpg'},
+    ],
+    riders:[
+      {name:'Bishal Thapa',disc:'Motocross · MX2',ach:'3× National Champion, 2023–2025',img:IMG+'race-pack.jpg'},
+      {name:'Anmol Gurung',disc:'Enduro',ach:'Winner, Himalayan Rally 2025',img:IMG+'gallery-4.jpg'},
+      {name:'Sujata Rai',disc:"Motocross · Women's Open",ach:'Fastest Nepali woman on dirt, 2025',img:IMG+'gallery-5.jpg'},
+      {name:'Kiran Magar',disc:'Karting',ach:'Junior National Champion 2024',img:IMG+'gallery-6.jpg'},
+      {name:'Rohan Shrestha',disc:'Rally',ach:'Podium finisher, Mustang Valley 2025',img:IMG+'gallery-7.jpg'},
+    ],
+    sponsors:['APEX FUEL','KHUKURI MOTO','SUMMIT TYRES','TORQUE GEAR','PEAK ENERGY','RIDGE OIL','ALTITUDE PARTS','ROAR HELMETS'],
+    testimonials:[
+      {quote:'Dirt Temple gave me a real path — from a borrowed bike to the national podium.',name:'Bishal Thapa',role:'MX2 National Champion'},
+      {quote:'Booking track time used to mean fifteen phone calls. Now it takes fifteen seconds.',name:'Anmol Gurung',role:'Team Manager, Ridgeline Racing'},
+      {quote:"This is the first time Nepali motorsports has felt organized, ambitious, and ours.",name:'Sujata Rai',role:"Women's Open Rider"},
+    ],
+    gallery:[
+      {cat:'race',h:230,img:IMG+'gallery-1.jpg',cap:'Round 2 · Chitwan'},
+      {cat:'academy',h:300,img:IMG+'gallery-2.jpg',cap:'Academy intake, week one'},
+      {cat:'race',h:180,img:IMG+'gallery-3.jpg',cap:'Holeshot, Pokhara'},
+      {cat:'behind',h:260,img:IMG+'gallery-4.jpg',cap:'Pit lane, dawn setup'},
+      {cat:'race',h:320,img:IMG+'gallery-5.jpg',cap:'Podium, Round 1'},
+      {cat:'academy',h:200,img:IMG+'gallery-6.jpg',cap:'Coaching session'},
+      {cat:'behind',h:220,img:IMG+'gallery-7.jpg',cap:'Media crew trackside'},
+      {cat:'race',h:280,img:IMG+'gallery-8.jpg',cap:'Berm shot, Kathmandu'},
+      {cat:'academy',h:240,img:IMG+'track-pokhara.jpg',cap:'Junior riders, trail day'},
+      {cat:'behind',h:190,img:IMG+'race-pack.jpg',cap:'Bike prep, 6am'},
+      {cat:'race',h:260,img:IMG+'race-podium.jpg',cap:'Rally stage, Mustang'},
+      {cat:'academy',h:210,img:IMG+'track-dhulikhel.jpg',cap:'Graduation day'},
+    ],
+    faqs:[
+      {q:'Who can join the Dirt Temple Academy?',a:'Riders of any experience level, age 10 and up, across motocross, enduro, karting and rally disciplines. Programs are structured by skill level, not age.'},
+      {q:'How does track booking work?',a:'Browse verified tracks across Nepal, check live availability, and confirm your slot instantly — no calls, no waiting for a callback.'},
+      {q:'Can brands sponsor individual riders?',a:'Yes. Sponsorship packages can be built around a single rider, a team, or a full event, with reach and performance data attached.'},
+      {q:'Where is Dirt Temple based?',a:'Our headquarters is in Kathmandu, with partner tracks and academy chapters spread across Pokhara, Chitwan and the Mustang region.'},
+    ],
+
+    init(){
+      for(let i=0;i<5;i++) setTimeout(()=>this.litIndex=i, 260*i);
+      setTimeout(()=>{ this.litIndex=-1; this.heroReady=true; }, 260*5+380);
+      setTimeout(()=> this.stats.forEach(s=>this.animateCount(s)), 900);
+      this.tick(); setInterval(()=>this.tick(),1000);
+      setInterval(()=> this.testiIndex=(this.testiIndex+1)%this.testimonials.length, 5500);
+      window.addEventListener('scroll',()=> this.scrolled = window.scrollY>40);
+    },
+    animateCount(s){
+      const dur=1500,start=performance.now(),target=s.value;
+      const step=(now)=>{ const p=Math.min((now-start)/dur,1); s.display=Math.round((1-Math.pow(1-p,3))*target); if(p<1) requestAnimationFrame(step); };
+      requestAnimationFrame(step);
+    },
+    tick(){
+      let diff=this.raceDate-new Date(); if(diff<0) diff=0;
+      this.cd.d=String(Math.floor(diff/86400000)).padStart(2,'0');
+      this.cd.h=String(Math.floor(diff%86400000/3600000)).padStart(2,'0');
+      this.cd.m=String(Math.floor(diff%3600000/60000)).padStart(2,'0');
+      this.cd.s=String(Math.floor(diff%60000/1000)).padStart(2,'0');
+    },
+    ripple(e){
+      const btn=e.currentTarget, r=btn.getBoundingClientRect(), size=Math.max(r.width,r.height);
+      const span=document.createElement('span');
+      span.className='absolute rounded-full bg-white/50 pointer-events-none animate-ripple';
+      span.style.width=span.style.height=size+'px';
+      span.style.left=(e.clientX-r.left-size/2)+'px'; span.style.top=(e.clientY-r.top-size/2)+'px';
+      btn.appendChild(span); setTimeout(()=>span.remove(),650);
+    },
+    showToast(msg){ this.toast={show:true,msg}; setTimeout(()=>this.toast.show=false,3200); },
+    submitJoin(){ this.joinOpen=false; this.showToast('Application received — check your email.'); },
+    submitNewsletter(){ this.showToast("You're on the list."); },
+  }
+}
+</script>
+</body>
+</html>
